@@ -1,16 +1,35 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+import sqlite3
+from flask import Flask, request, render_template
+import pymongo
+import json
 
 
-# Press the green button in the gutter to run the script.
+
+app = Flask(__name__)
+
+conn = sqlite3.connect('data.db')
+print('opened database successfully.')
+
+conn.execute('SELECT * FROM companies')
+print('Selected everything from the table')
+
+
+def get_db_mongo():
+    client = pymongo.MongoClient('mongodb://localhost:27017')
+    db = client['companies']
+    return db
+
+
+
+@app.route('/')
+def index():
+    conn = sqlite3.connect('data.db')
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute('SELECT * from companies')
+    rows = cur.fetchall()
+    return render_template('index.html', companies = rows)
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    app.run()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
