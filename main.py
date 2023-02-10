@@ -1,93 +1,66 @@
-import sqlite3
-from flask import Flask, request, render_template, Response, jsonify
-import pymongo
+from flask import Flask, Response, render_template, request
 import json
-from bson.objectid import ObjectId
-import re
-
+from scripts import get_one_company, clean_one_company, get_data_sqlite_full_data, lst_of_companies, get_cleaned_companies
 
 
 app = Flask(__name__)
 
 
-def get_db_mongo():
-    client = pymongo.MongoClient('mongodb://localhost:27017')
-    db = client['Company']
-    collection = db['companies']
-    return collection
-
-
-table_dict = {}
-lst_of_companies = []
-
-def sqlite_conn():
-    conn = sqlite3.connect('data.db')
-    return conn
-def get_data_sqlite():
-    conn = sqlite_conn()
-    cursor = conn.cursor()
-    table_data = conn.execute('SELECT * FROM companies')
-    i = 0
-    for data in list(table_data):
-        company_id = data[0]
-        table_dict = {
-            "Name" : data[1],
-            "Country": data[2],
-            "City" : data[3],
-            "Nace" : data[4],
-            "Website": data[5]
-            }
-        lst_of_companies.append({str(company_id) : table_dict})
-
-
-
-def upload_files(db, lst):
-    db.insert_many(lst)
-
-sqlite_conn()
-get_data_sqlite()
-db = get_db_mongo()
-# upload_files(db, lst_of_companies)
-
-
-
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
-   return 'W'
-
-@app.route('/companies/', methods=['GET'])
-def companies():
-    conn = sqlite_conn()
-    c = conn.cursor()
-    c.execute('SELECT * FROM companies')
     try:
-        data = c.fetchall()
-        return str(data)
+        get_data_sqlite_full_data()
+        page = int(request.args.get("page", 1))
+        per_page = 40
+        start = (page - 1) * per_page
+        end = start + per_page
+        companies = lst_of_companies[start:end]
+        return render_template("index.html",
+                               cmps=companies,
+                               page=page)
+    except Exception as ex:
+        return ex, 505
+
+@app.route('/companies/<string:name>', methods=['GET'])
+def companies(name):
+    try:
+        one_company = get_one_company(name)
+        return f'{one_company}'
 
     except Exception as ex:
-        print(ex)
-        return Response(response = json.dumps({"message": "cannot read users"}), status=500, mimetype = "application/json")
+        return Response(response = json.dumps({"message": "cannot read company"}),
+                        status=500,
+                        mimetype = "application/json")
 
-
-@app.route('/company/', methods = ['GET'])
-def one_company():
-    conn = sqlite_conn()
-    c = conn.cursor()
-    c.execute('SELECT * FROM companies')
+@app.route('/clean-company/<string:name>', methods=["GET","POST"])
+def clean_company(name):
     try:
-        data = c.fetchone()
-        return str(data)
+        cleaned_company = clean_one_company(name)
+        return f'Succesfully cleaned the company, {cleaned_company[1]}'
 
     except Exception as ex:
-        print(ex)
-        return Response(response=json.dumps({"message": "cannot read users"}), status=500, mimetype="application/json")
+        return str(ex), 409
 
 
+@app.route('/cleaned-companies', methods=["GET"])
+def cleaned_companies():
+    try:
+        cleaned = get_cleaned_companies()
+        return json.dumps(cleaned)
+    except Exception as ex:
+        return "Can't read the cleaned companies"
 
-
-
+@app.route('/clean-a-company/<string:name>', methods=["POST"])
+def clean_a_company(name):
+    try:
+        clean_cmp = clean_one_company(name)
+        return clean_cmp
+    except Exception as ex:
+        return str(ex)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
+
+
 
