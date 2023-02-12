@@ -1,9 +1,8 @@
 import sqlite3
 import pymongo
 from cleanco import basename
-import string
 import re
-import requests
+
 
 def get_db_mongo():
     client = pymongo.MongoClient('mongodb://localhost:27017')

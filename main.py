@@ -1,9 +1,8 @@
 from flask import Flask, Response, render_template, request
 import json
 from scripts import get_one_company, clean_one_company, get_data_sqlite_full_data, lst_of_companies, get_cleaned_companies
-
-
 app = Flask(__name__)
+
 
 
 @app.route('/', methods=['GET'])
@@ -11,7 +10,7 @@ def index():
     try:
         get_data_sqlite_full_data()
         page = int(request.args.get("page", 1))
-        per_page = 40
+        per_page = 200
         start = (page - 1) * per_page
         end = start + per_page
         companies = lst_of_companies[start:end]
@@ -61,6 +60,8 @@ def clean_a_company(name):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
 
 
 

@@ -7,41 +7,39 @@ Semos Final Project
 {% endblock %}
 
 {% block content %}
-
-    <table class="table">
+        <table id="dataCompanies" class="table table-striped dataTable">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Name</th>
-                  <th scope="col">Country</th>
-                  <th scope="col">City</th>
-                    <th scope="col">Nace</th>
-                    <th scope="col">Website</th>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Country</th>
+                     <th>City</th>
+                    <th>Nace</th>
+                    <th>Website</th>
+                    <th></th>
                 </tr>
               </thead>
-              <tbody>
+            <tbody>
               {% for c in cmps %}
               <tr>
-                  <form action="/clean-company/" method="POST">
-                      <th>{{c["Id"]}}</th>
-                  <th>{{c["Name"]}}</th>
-                  <th>{{c["Country"]}}</th>
-                  <th>{{c["City"]}}</th>
-                  <th>{{c["Nace"]}}</th>
-                  <th><a href='{{c["Website"]}}' target="_blank">{{c["Website"]}}</a></th>
-                  <th><button type="button" class="btn btn-secondary" type="submit" onclick="window.location.href='{{ url_for( 'clean_company' , name=c['Name']) }}';">Clean Company</button></th>
-                  </form>
-                  {% endfor %}
-              </tr>
+                  <td>{{c["Id"]}}</td>
+                  <td>{{c["Name"]}}</td>
+                  <td>{{c["Country"]}}</td>
+                  <td>{{c["City"]}}</td>
+                  <td>{{c["Nace"]}}</td>
+                  <td><a href='{{c["Website"]}}' target="_blank">{{c["Website"]}}</a></td>
+                  <td><button type="button" class="btn btn-secondary" type="submit" onclick="window.location.href='{{ url_for( 'clean_company' , name=c['Name']) }}';">Clean Company</button></td>
+                </tr>
+             {% endfor %}
               </tbody>
-
             </table>
-                <div class="pagination">
-                  {% if page > 1 %}
-                  <a href="?page={{ page - 1 }}" button type="button" class="btn btn-primary mr-1">Previous</a>
-                  {% endif %}
-                  <a href="?page={{ page + 1 }}" button type="button" class="btn btn-primary mr-1">Next</a>
-                </div>
+        {% endblock %}
 
-
+{% block scripts %}
+  <script>
+    $(document).ready(function () {
+  $('#dataCompanies').DataTable();
+  $('.dataTables_length').addClass('bs-select');
+});
+  </script>
 {% endblock %}
