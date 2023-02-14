@@ -4,6 +4,12 @@ from cleanco import basename
 import re
 
 
+#Empty dictionary and 2 lists used in the functions below.
+table_dict = {}
+lst_of_companies = []
+all_companies =[]
+
+
 def get_db_mongo():
     """
     Connecting to MongoDB and creating the database called Company with 'Companies' collection.
@@ -14,11 +20,6 @@ def get_db_mongo():
     collection = db['companies']
     return collection
 
-
-#Empty dictionary and 2 lists used in the functions below.
-table_dict = {}
-lst_of_companies = []
-all_companies =[]
 
 def sqlite_conn():
     """
@@ -69,7 +70,7 @@ def get_data_sqlite_full_data():
 
 def clean_one_company(name):
     """
-    Getting one company for clearing from the get_one_company function
+    :one_company: Getting one company for clearing from the get_one_company function
     :db: Establishing a connection to Mongo.
     :param name: passing the name of the company we want to clear
     :db.create.index: Making the name a unique index since the primary key in Mongo is always the _id
@@ -80,7 +81,6 @@ def clean_one_company(name):
     db = get_db_mongo()
     db.create_index([("Name", pymongo.TEXT)], unique=True)
     cleaned_name = re.sub("(^|[.?!&])\s*([a-zA-Z])", lambda name: name.group().upper(), one_company[1])
-    name = cleaned_name.title()
     table_dict = {
         "Id" : one_company[0],
         "Name": basename(cleaned_name.title().strip().replace('.','').replace('‰','').replace(':','').replace('(','').replace(')','')),
@@ -96,7 +96,7 @@ def clean_one_company(name):
 
 def upload_files(db, table_dict):
     """
-    :param db: Db is used for the Company database in Mongo
+    :param db: Db is a passed variable used for the Company database in Mongo
     :param table_dict: The dict that contains info of the cleaned company that we need to upload to Mongodb.
     :return:
     """
