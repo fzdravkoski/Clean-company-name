@@ -5,22 +5,37 @@ import re
 
 
 def get_db_mongo():
+    """
+    Connecting to MongoDB and creating the database called Company with 'Companies' collection.
+    :return: Returning the collection in Company database.
+    """
     client = pymongo.MongoClient('mongodb://localhost:27017')
     db = client['Company']
     collection = db['companies']
     return collection
 
 
+#Empty dictionary and 2 lists used in the functions below.
 table_dict = {}
 lst_of_companies = []
 all_companies =[]
-search = ''
+
 def sqlite_conn():
+    """
+    Establishing a connection to the data.db file.
+    :return: returning the connection
+    """
     conn = sqlite3.connect('data.db')
     return conn
 
 
 def get_one_company(name):
+    """
+    If statement for checking for empty spaces in the name
+    :data: Executing a query that searches the sqlite database for a specific name
+    :param name: passing a name of a company
+    :return: Query return
+    """
     if ' ' in name:
         conn = sqlite_conn()
         c = conn.cursor()
@@ -29,9 +44,15 @@ def get_one_company(name):
 
 
 def get_data_sqlite_full_data():
+    """
+    Connecting to the sqlite database
+    Query for selecting 1000 companies from data.db
+    A FOR loop to iterate the query
+    :table-dict: Used to store the data in a dictionary and then append them in an empty list.
+    :return: returning the list of companies.
+    """
     conn = sqlite_conn()
-    table_data = conn.execute('SELECT * FROM companies')
-    i = 0
+    table_data = conn.execute('SELECT * FROM companies LIMIT 1000')
     for data in list(table_data):
         table_dict = {
             "Id" : data[0],
@@ -47,6 +68,14 @@ def get_data_sqlite_full_data():
 
 
 def clean_one_company(name):
+    """
+    Getting one company for clearing from the get_one_company function
+    :db: Establishing a connection to Mongo.
+    :param name: passing the name of the company we want to clear
+    :db.create.index: Making the name a unique index since the primary key in Mongo is always the _id
+    :upload_files: Using the upload_files function to upload the dictionary containing the company info in MongoDB.
+    :return: returning the company that we have cleaned.
+    """
     one_company = list(get_one_company(name))
     db = get_db_mongo()
     db.create_index([("Name", pymongo.TEXT)], unique=True)
@@ -66,10 +95,21 @@ def clean_one_company(name):
 
 
 def upload_files(db, table_dict):
+    """
+    :param db: Db is used for the Company database in Mongo
+    :param table_dict: The dict that contains info of the cleaned company that we need to upload to Mongodb.
+    :return:
+    """
     db.insert_one(table_dict)
 
 
 def get_cleaned_companies():
+    """
+    Connecting to MongoDB using the get_db_mongo function
+    Iterating through the data in the database, in which we remove the _id from displaying
+    Uploading the files in an empty list
+    :return: returning the list.
+    """
     db = get_db_mongo()
     for companies in db.find({},{"_id": 0}):
         all_companies.append(companies)
