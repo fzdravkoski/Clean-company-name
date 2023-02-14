@@ -1,7 +1,7 @@
 # semos_final_project
 Requirements - Python 3.8
 
-Packages used - Flask, Pymongo, Json, Cleanco, re.
+Modules used - Flask, Pymongo, Json, Cleanco, re.
 
 This project contains 3 python files and 2 HTML files, which work together to clear company names from a SQLite3 database and upload them to MongoDB.
 
