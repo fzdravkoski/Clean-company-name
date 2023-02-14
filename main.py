@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template, request
+from flask import Flask, Response, render_template
 import json
 from scripts import get_one_company, clean_one_company, get_data_sqlite_full_data, lst_of_companies, get_cleaned_companies
 
