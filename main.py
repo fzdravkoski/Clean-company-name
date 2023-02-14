@@ -57,26 +57,13 @@ def clean_company(name):
 def cleaned_companies():
     """
     :get_cleaned_companies: Used for getting all the companies we have cleaned from mongodb
-    :return: Displaying them as json results using the get method in requestapi.py.
+    :return: Displaying them as json.dumps results using the get method in requestapi.py.
     """
     try:
         cleaned = get_cleaned_companies()
         return json.dumps(cleaned)
     except Exception as ex:
         return "Can't read the cleaned companies"
-
-@app.route('/clean-a-company/<string:name>', methods=["POST"])
-def clean_a_company(name):
-    """
-    :clean_one_company: Connecting and pulling a company from sqlite, clearing it and uploading the result to MongoDB
-    :param name: Passing the name from the clean_one_company function
-    :return: returning the results. Used for the post method in the requestapi.py file.
-    """
-    try:
-        clean_cmp = clean_one_company(name)
-        return clean_cmp
-    except Exception as ex:
-        return str(ex)
 
 
 if __name__ == '__main__':
